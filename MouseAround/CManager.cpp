@@ -1,5 +1,7 @@
 #include "CManager.h"
 #include <stdio.h>
+#include "CArduinoHandler.h"
+
 CManager::CManager(const char* cpExecName, int par_nOwnScreenWidth, int par_nOwnScreenHeigth) {
 	bOwnScreenActive = true;
 	nOwnScreenWidth = par_nOwnScreenWidth;
@@ -18,6 +20,8 @@ CManager::CManager(const char* cpExecName, int par_nOwnScreenWidth, int par_nOwn
 	itsHotkeyManager.RegisterKeyCombination(ucpTemp, 3, HOTKEY_SET_ACTIVE_SCREEN_BEGIN);
 	ucpTemp[0] = 50;
 	itsHotkeyManager.RegisterKeyCombination(ucpTemp, 3, HOTKEY_SET_ACTIVE_SCREEN_BEGIN + 1);
+
+	new CArduinoHandler(19);
 }
 
 CManager::~CManager() {

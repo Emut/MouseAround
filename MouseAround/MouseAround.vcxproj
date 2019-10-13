@@ -151,15 +151,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CArduinoHandler.cpp" />
     <ClCompile Include="CHotkeyManager.cpp" />
     <ClCompile Include="CInputGrabberWin.cpp" />
     <ClCompile Include="CManager.cpp" />
     <ClCompile Include="MouseAround.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CArduinoHandler.h" />
     <ClInclude Include="CHotkeyManager.h" />
     <ClInclude Include="CInputGrabberWin.h" />
     <ClInclude Include="CManager.h" />
+    <ClInclude Include="IScreenHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

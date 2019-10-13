@@ -1,6 +1,7 @@
 #pragma once
 #include "CInputGrabberWin.h"
 #include "CHotkeyManager.h"
+#include "IScreenHandler.h"
 #include <mutex>
 
 class CManager: public IInputGrabberOut
