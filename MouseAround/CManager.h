@@ -2,7 +2,7 @@
 #include "CInputGrabberWin.h"
 #include "CHotkeyManager.h"
 #include "IScreenHandler.h"
-#include <mutex>
+#include <vector>
 
 class CManager: public IInputGrabberOut
 {
@@ -15,7 +15,7 @@ class CManager: public IInputGrabberOut
 	int nActiveScreenID;
 	int nScreenCount;
 	bool bBorderlessModeActive;
-	std::mutex mtx;
+	std::vector<IScreenHandlerIn*> vectScreenp;
 
 	enum teHotkeys
 	{

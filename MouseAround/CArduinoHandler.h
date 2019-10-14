@@ -13,5 +13,6 @@ public:
 	void SendExactMouseInput(int nX, int nY);
 	void SendKeyboardInput(unsigned char ucKey, bool bIsPressed);
 	CArduinoHandler(int nComID);
+	~CArduinoHandler();
 };
 

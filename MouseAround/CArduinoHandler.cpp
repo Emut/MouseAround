@@ -2,16 +2,31 @@
 
 
 CArduinoHandler::CArduinoHandler(int nComID) {
-	char cpCommName[20];
-	sprintf_s(cpCommName, "\\\\.\\COM%d", nComID);
-	hndComm = CreateFile((LPCWSTR)cpCommName,   //port name
+	LPWSTR b = new WCHAR[20];
+	b[0] = '\\';
+	b[1] = '\\';
+	b[2] = '.';
+	b[3] = '\\';
+	b[4] = 'C';
+	b[5] = 'O';
+	b[6] = 'M';
+	if (nComID > 9) {
+		b[7] = nComID / 10 + '0';
+		b[8] = nComID % 10 + '0';
+		b[9] = '\0';
+	}
+	else {
+		b[7] = nComID % 10 + '0';
+		b[8] = '\0';
+	}
+	hndComm = CreateFile(b,                //port name
 		GENERIC_READ | GENERIC_WRITE, //Read/Write
 		0,                            // No Sharing
 		NULL,                         // No Security
 		OPEN_EXISTING,// Open existing port only
 		0,            // Non Overlapped I/O
 		NULL);        // Null for Comm Devices
-
+	delete[] b;
 	if (hndComm == INVALID_HANDLE_VALUE)
 		printf("Error in opening serial port\n");
 	else
@@ -37,7 +52,8 @@ CArduinoHandler::CArduinoHandler(int nComID) {
 }
 
 void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel) {
-	char cpBuffer[20];
+	printf("ArduRM %d, %d\n", nDelX, nDelY);
+	char cpBuffer[5];
 	cpBuffer[0] = 0xC3;
 	cpBuffer[1] = (short)nDelX >> 8;
 	cpBuffer[2] = (short)nDelX & 0xFF;
@@ -49,8 +65,9 @@ void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel
 	bStatus = WriteFile(hndComm,        // Handle to the Serial port
 		cpBuffer,     // Data to be written to the port
 		5,  //No of bytes to write
-		&dNoOfBytesWritten, //Bytes written
+		&dNoOfBytesWritten, //Bytes written>
 		NULL);
+	
 }
 void CArduinoHandler::SendExactMouseInput(int nX, int nY) {
 
@@ -59,3 +76,6 @@ void CArduinoHandler::SendKeyboardInput(unsigned char ucKey, bool bIsPressed) {
 
 }
 
+CArduinoHandler::~CArduinoHandler() {
+	CloseHandle(hndComm);	//Closing the Serial Port
+}

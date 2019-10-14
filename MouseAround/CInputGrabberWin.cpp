@@ -80,11 +80,13 @@ LRESULT CInputGrabberWin::MouseCallback(int nCode, WPARAM wParam, LPARAM lParam)
 	if (pMouseStruct != NULL && wParam == WM_MOUSEMOVE) {
 		int delX = pMouseStruct->pt.x - prevMousePos.x;
 		int delY = pMouseStruct->pt.y - prevMousePos.y;
-		prevMousePos = pMouseStruct->pt;
+		
 		if (itsOwner->MouseUpdated(pMouseStruct->pt.x, pMouseStruct->pt.y, delX, delY))
 			return -1;
-		else
+		else{
+			prevMousePos = pMouseStruct->pt;
 			return 0;
+		}
 	}
 	return 0;
 }

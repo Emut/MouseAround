@@ -20,8 +20,11 @@ CManager::CManager(const char* cpExecName, int par_nOwnScreenWidth, int par_nOwn
 	itsHotkeyManager.RegisterKeyCombination(ucpTemp, 3, HOTKEY_SET_ACTIVE_SCREEN_BEGIN);
 	ucpTemp[0] = 50;
 	itsHotkeyManager.RegisterKeyCombination(ucpTemp, 3, HOTKEY_SET_ACTIVE_SCREEN_BEGIN + 1);
+	ucpTemp[0] = 51;
+	itsHotkeyManager.RegisterKeyCombination(ucpTemp, 3, HOTKEY_BORDERLESS_MODE);
 
-	new CArduinoHandler(19);
+	vectScreenp.push_back(NULL);
+	vectScreenp.push_back(new CArduinoHandler(20));
 }
 
 CManager::~CManager() {
@@ -31,6 +34,21 @@ CManager::~CManager() {
 bool CManager::MouseUpdated(int posX, int posY, int delX, int delY) {
 	nVirtualScreenPosX += delX;
 	nVirtualScreenPosY += delY;
+	printf("CMan::MUp %d,%d\n", delX, delY);
+	if (!bBorderlessModeActive) {
+		if (nActiveScreenID == 0)
+			return false;
+		if (vectScreenp.size() >= nActiveScreenID && vectScreenp[nActiveScreenID] != NULL) {
+			
+			vectScreenp[nActiveScreenID]->SendRelativeMouseInput(delX, delY, false);
+			//itsInputGrabber->setMousePos(posX, posY); /////
+			return true;
+		}
+		else
+			return false;
+	}
+
+
 	bool bIsVirtualMouseInOwnScreen = IsInOwnScreen(nVirtualScreenPosX, nVirtualScreenPosY);
 	bool bOverrideInputOnSelf = false;
 
@@ -57,8 +75,10 @@ bool CManager::MouseUpdated(int posX, int posY, int delX, int delY) {
 bool CManager::KeyboardUpdated(unsigned char ucKey, bool bIsPressed) {
 	//printf("Cman::KeybUpdated %d %s\n", ucKey, bIsPressed?"pressed":"released");
 	int nHotKey = itsHotkeyManager.KeyUpdate(ucKey, bIsPressed);
-	if (nHotKey != -1)
+	if (nHotKey != -1) {
 		printf("Hotkey %d detected\n", nHotKey);
+		HandleHotkey((teHotkeys)nHotKey);
+	}
 	return false;
 }
 
@@ -71,6 +91,11 @@ bool CManager::IsInOwnScreen(int nX, int nY) {
 }
 
 void CManager::HandleHotkey(teHotkeys eHotkey) {
+	switch (eHotkey) {
+	case HOTKEY_BORDERLESS_MODE:
+		bBorderlessModeActive = !bBorderlessModeActive;
+		break;
+	}
 	if (eHotkey >= HOTKEY_SET_ACTIVE_SCREEN_BEGIN) {
 		nActiveScreenID = eHotkey - HOTKEY_SET_ACTIVE_SCREEN_BEGIN;
 	}
