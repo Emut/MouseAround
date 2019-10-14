@@ -164,6 +164,9 @@
     <ClInclude Include="CManager.h" />
     <ClInclude Include="IScreenHandler.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="MouseAroundArduinoLeonardoScript.ino" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
