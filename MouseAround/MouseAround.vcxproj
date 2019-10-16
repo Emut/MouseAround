@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CArduinoHandler.cpp" />
+    <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CHotkeyManager.cpp" />
     <ClCompile Include="CInputGrabberWin.cpp" />
     <ClCompile Include="CManager.cpp" />
@@ -159,10 +160,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CArduinoHandler.h" />
+    <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CHotkeyManager.h" />
     <ClInclude Include="CInputGrabberWin.h" />
     <ClInclude Include="CManager.h" />
     <ClInclude Include="IScreenHandler.h" />
+    <ClInclude Include="KeyboardTypeHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MouseAroundArduinoLeonardoScript.ino" />

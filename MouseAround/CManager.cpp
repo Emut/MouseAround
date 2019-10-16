@@ -1,6 +1,6 @@
 #include "CManager.h"
 #include <stdio.h>
-#include "CArduinoHandler.h"
+#include "CArduinoHandler.h"	
 
 CManager::CManager(const char* cpExecName, int par_nOwnScreenWidth, int par_nOwnScreenHeigth) {
 	bOwnScreenActive = true;
@@ -24,7 +24,9 @@ CManager::CManager(const char* cpExecName, int par_nOwnScreenWidth, int par_nOwn
 	itsHotkeyManager.RegisterKeyCombination(ucpTemp, 3, HOTKEY_BORDERLESS_MODE);
 
 	vectScreenp.push_back(NULL);
-	vectScreenp.push_back(new CArduinoHandler(20));
+	int nArduPort = CConfigHandler::getInstance()->nArduinoComPort;
+	vectScreenp.push_back(new CArduinoHandler(nArduPort));
+	
 }
 
 CManager::~CManager() {
@@ -34,7 +36,7 @@ CManager::~CManager() {
 bool CManager::MouseUpdated(int posX, int posY, int delX, int delY) {
 	nVirtualScreenPosX += delX;
 	nVirtualScreenPosY += delY;
-	printf("CMan::MUp %d,%d\n", delX, delY);
+	//printf("CMan::MUp %d,%d\n", delX, delY);
 	if (!bBorderlessModeActive) {
 		if (nActiveScreenID == 0)
 			return false;

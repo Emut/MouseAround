@@ -2,6 +2,7 @@
 #include "CInputGrabberWin.h"
 #include "CHotkeyManager.h"
 #include "IScreenHandler.h"
+#include "CConfigHandler.h"
 #include <vector>
 
 class CManager: public IInputGrabberOut

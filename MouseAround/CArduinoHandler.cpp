@@ -52,7 +52,7 @@ CArduinoHandler::CArduinoHandler(int nComID) {
 }
 
 void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel) {
-	printf("ArduRM %d, %d\n", nDelX, nDelY);
+	//printf("ArduRM %d, %d\n", nDelX, nDelY);
 	char cpBuffer[5];
 	cpBuffer[0] = 0xC3;
 	cpBuffer[1] = (short)nDelX >> 8;
