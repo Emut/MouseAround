@@ -77,6 +77,10 @@ CInputGrabberWin::~CInputGrabberWin() {
 
 LRESULT CInputGrabberWin::MouseCallback(int nCode, WPARAM wParam, LPARAM lParam) {
 	MOUSEHOOKSTRUCT* pMouseStruct = (MOUSEHOOKSTRUCT*)lParam;
+	if (wParam == WM_LBUTTONDOWN)
+		printf("LBD\n");
+	if (wParam == WM_LBUTTONUP)
+		printf("LBU\n");
 	if (pMouseStruct != NULL && wParam == WM_MOUSEMOVE) {
 		int delX = pMouseStruct->pt.x - prevMousePos.x;
 		int delY = pMouseStruct->pt.y - prevMousePos.y;

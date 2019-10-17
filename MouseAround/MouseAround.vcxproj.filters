@@ -58,7 +58,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MouseAroundArduinoLeonardoScript.ino">
+    <None Include="MouseAroundArduinoLeonardoScript\MouseAroundArduinoLeonardoScript.ino">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

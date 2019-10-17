@@ -168,7 +168,7 @@
     <ClInclude Include="KeyboardTypeHelpers.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MouseAroundArduinoLeonardoScript.ino" />
+    <None Include="MouseAroundArduinoLeonardoScript\MouseAroundArduinoLeonardoScript.ino" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

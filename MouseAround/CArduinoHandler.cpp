@@ -1,4 +1,5 @@
 #include "CArduinoHandler.h"
+#include "KeyboardTypeHelpers.h"
 
 
 CArduinoHandler::CArduinoHandler(int nComID) {
@@ -73,7 +74,24 @@ void CArduinoHandler::SendExactMouseInput(int nX, int nY) {
 
 }
 void CArduinoHandler::SendKeyboardInput(unsigned char ucKey, bool bIsPressed) {
+	unsigned char ucTemp = ucKey;
+	if (!KeyboardTypeHelper::WinToArduino(ucKey))
+		return;		//input key is not applicable for arduino
+	char cpBuffer[2];
+	if (bIsPressed)
+		cpBuffer[0] = 0xC1;
+	else
+		cpBuffer[0] = 0xC2;
 
+	cpBuffer[1] = ucKey;
+
+	bool bStatus = false;
+	DWORD dNoOfBytesWritten = 0;
+	bStatus = WriteFile(hndComm,        // Handle to the Serial port
+		cpBuffer,     // Data to be written to the port
+		2,  //No of bytes to write
+		&dNoOfBytesWritten, //Bytes written>
+		NULL);
 }
 
 CArduinoHandler::~CArduinoHandler() {

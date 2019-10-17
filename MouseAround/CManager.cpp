@@ -1,6 +1,7 @@
 #include "CManager.h"
 #include <stdio.h>
-#include "CArduinoHandler.h"	
+#include "CArduinoHandler.h"
+	
 
 CManager::CManager(const char* cpExecName, int par_nOwnScreenWidth, int par_nOwnScreenHeigth) {
 	bOwnScreenActive = true;
@@ -81,7 +82,14 @@ bool CManager::KeyboardUpdated(unsigned char ucKey, bool bIsPressed) {
 		printf("Hotkey %d detected\n", nHotKey);
 		HandleHotkey((teHotkeys)nHotKey);
 	}
-	return false;
+	if (nActiveScreenID == 0)
+		return false;
+	if (vectScreenp.size() >= nActiveScreenID && vectScreenp[nActiveScreenID] != NULL) {
+		vectScreenp[nActiveScreenID]->SendKeyboardInput(ucKey, bIsPressed);
+		return true;
+	}
+	else
+		return false;
 }
 
 bool CManager::IsInOwnScreen(int nX, int nY) {
