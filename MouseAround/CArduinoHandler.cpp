@@ -53,22 +53,43 @@ CArduinoHandler::CArduinoHandler(int nComID) {
 }
 
 void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel) {
-	//printf("ArduRM %d, %d\n", nDelX, nDelY);
-	char cpBuffer[5];
-	cpBuffer[0] = 0xC3;
-	cpBuffer[1] = (short)nDelX >> 8;
-	cpBuffer[2] = (short)nDelX & 0xFF;
-	cpBuffer[3] = (short)nDelY >> 8;
-	cpBuffer[4] = (short)nDelY & 0xFF;
+	if (!bIsWheel) {
+		if (nDelX > 127)
+			nDelX = 127;
+		if (nDelY > 127)
+			nDelY = 127;
+		if (nDelX < -127)
+			nDelX = -127;
+		if (nDelY < -127)
+			nDelY = -127;
+		char cpBuffer[5];
+		cpBuffer[0] = 0xC3;
+		cpBuffer[1] = (short)nDelX >> 8;
+		cpBuffer[2] = (short)nDelX & 0xFF;
+		cpBuffer[3] = (short)nDelY >> 8;
+		cpBuffer[4] = (short)nDelY & 0xFF;
 
-	bool bStatus = false;
-	DWORD dNoOfBytesWritten = 0;
-	bStatus = WriteFile(hndComm,        // Handle to the Serial port
-		cpBuffer,     // Data to be written to the port
-		5,  //No of bytes to write
-		&dNoOfBytesWritten, //Bytes written>
-		NULL);
-	
+		bool bStatus = false;
+		DWORD dNoOfBytesWritten = 0;
+		bStatus = WriteFile(hndComm,        // Handle to the Serial port
+			cpBuffer,     // Data to be written to the port
+			5,  //No of bytes to write
+			&dNoOfBytesWritten, //Bytes written>
+			NULL);
+	}
+	else {
+		char cpBuffer[2];
+		cpBuffer[0] = 0xC5;
+		cpBuffer[1] = (char)(nDelX/120);
+
+		bool bStatus = false;
+		DWORD dNoOfBytesWritten = 0;
+		bStatus = WriteFile(hndComm,        // Handle to the Serial port
+			cpBuffer,     // Data to be written to the port
+			2,  //No of bytes to write
+			&dNoOfBytesWritten, //Bytes written>
+			NULL);
+	}
 }
 void CArduinoHandler::SendExactMouseInput(int nX, int nY) {
 

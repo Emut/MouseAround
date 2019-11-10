@@ -34,7 +34,7 @@ CManager::~CManager() {
 
 }
 
-bool CManager::MouseUpdated(int posX, int posY, int delX, int delY) {
+bool CManager::MouseUpdated(int posX, int posY, int delX, int delY, bool bIsWheel) {
 	nVirtualScreenPosX += delX;
 	nVirtualScreenPosY += delY;
 	//printf("CMan::MUp %d,%d\n", delX, delY);
@@ -43,7 +43,7 @@ bool CManager::MouseUpdated(int posX, int posY, int delX, int delY) {
 			return false;
 		if (vectScreenp.size() >= nActiveScreenID && vectScreenp[nActiveScreenID] != NULL) {
 			
-			vectScreenp[nActiveScreenID]->SendRelativeMouseInput(delX, delY, false);
+			vectScreenp[nActiveScreenID]->SendRelativeMouseInput(delX, delY, bIsWheel);
 			//itsInputGrabber->setMousePos(posX, posY); /////
 			return true;
 		}

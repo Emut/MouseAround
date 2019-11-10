@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 	
 	CConfigHandler::getInstance()->ImportConfig("C:/Users/Emut/source/repos/MouseAround/config.ini");
 	CManager test(argv[0], 1000, 500);
-	Sleep(60 * 1000);
+	Sleep(INFINITE);
 }
 
 

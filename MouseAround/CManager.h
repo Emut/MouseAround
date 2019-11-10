@@ -28,7 +28,7 @@ class CManager: public IInputGrabberOut
 public:
 	CManager(const char* cpExecName, int nOwnScreenWidth, int nOwnScreenHeigth);
 	~CManager();
-	bool MouseUpdated(int, int, int, int);
+	bool MouseUpdated(int, int, int, int, bool);
 	bool KeyboardUpdated(unsigned char, bool);
 
 	IInputGrabberIn* itsInputGrabber;

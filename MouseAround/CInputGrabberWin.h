@@ -5,7 +5,7 @@
 class IInputGrabberOut
 {
 public:
-	virtual bool MouseUpdated(int nPosX, int nPosY, int nDelX, int nDelY) = 0;
+	virtual bool MouseUpdated(int nPosX, int nPosY, int nDelX, int nDelY, bool bIsWheel) = 0;
 	virtual bool KeyboardUpdated(unsigned char ucKey, bool bIsPressed) = 0;
 };
 

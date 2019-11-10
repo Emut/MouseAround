@@ -77,21 +77,73 @@ CInputGrabberWin::~CInputGrabberWin() {
 
 LRESULT CInputGrabberWin::MouseCallback(int nCode, WPARAM wParam, LPARAM lParam) {
 	MOUSEHOOKSTRUCT* pMouseStruct = (MOUSEHOOKSTRUCT*)lParam;
-	if (wParam == WM_LBUTTONDOWN)
-		printf("LBD\n");
-	if (wParam == WM_LBUTTONUP)
-		printf("LBU\n");
+	switch (wParam)
+	{
+	case WM_LBUTTONDOWN:
+		if (itsOwner->KeyboardUpdated(VK_LBUTTON, true))
+			return -1;
+		else
+			return 0;
+		break;
+	case WM_LBUTTONUP:
+		if (itsOwner->KeyboardUpdated(VK_LBUTTON, false))
+			return -1;
+		else
+			return 0;
+		break;
+	case WM_RBUTTONDOWN:
+		if (itsOwner->KeyboardUpdated(VK_RBUTTON, true))
+			return -1;
+		else
+			return 0;
+		break;
+	case WM_RBUTTONUP:
+		if (itsOwner->KeyboardUpdated(VK_RBUTTON, false))
+			return -1;
+		else
+			return 0;
+		break;
+	case WM_MBUTTONDOWN:
+		if (itsOwner->KeyboardUpdated(VK_MBUTTON, true))
+			return -1;
+		else
+			return 0;
+		break;
+	case WM_MBUTTONUP:
+		if (itsOwner->KeyboardUpdated(VK_MBUTTON, false))
+			return -1;
+		else
+			return 0;
+		break;
+	default:
+		break;
+	}
+	
 	if (pMouseStruct != NULL && wParam == WM_MOUSEMOVE) {
 		int delX = pMouseStruct->pt.x - prevMousePos.x;
 		int delY = pMouseStruct->pt.y - prevMousePos.y;
 		
-		if (itsOwner->MouseUpdated(pMouseStruct->pt.x, pMouseStruct->pt.y, delX, delY))
+		if (itsOwner->MouseUpdated(pMouseStruct->pt.x, pMouseStruct->pt.y, delX, delY, false))
 			return -1;
 		else{
 			prevMousePos = pMouseStruct->pt;
 			return 0;
 		}
 	}
+
+	if (pMouseStruct != NULL && wParam == WM_MOUSEWHEEL) {
+		MSLLHOOKSTRUCT* temp = (MSLLHOOKSTRUCT*)pMouseStruct;
+		short delta = temp->mouseData >> 16;
+		//printf("wheel:%d\n", delta);
+		if (itsOwner->MouseUpdated(pMouseStruct->pt.x, pMouseStruct->pt.y, delta, 0, true))
+			return -1;
+		else {
+			prevMousePos = pMouseStruct->pt;
+			return 0;
+		}
+		//pMouseStruct->hwnd
+	}
+
 	return 0;
 }
 
