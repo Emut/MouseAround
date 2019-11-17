@@ -53,7 +53,9 @@ CArduinoHandler::CArduinoHandler(int nComID) {
 }
 
 void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel) {
+	mtxWriteLock.lock();
 	if (!bIsWheel) {
+		printf("%d,%d...\n", nDelX, nDelY);
 		if (nDelX > 127)
 			nDelX = 127;
 		if (nDelY > 127)
@@ -62,20 +64,31 @@ void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel
 			nDelX = -127;
 		if (nDelY < -127)
 			nDelY = -127;
-		char cpBuffer[5];
+		char cpBuffer[3];
 		cpBuffer[0] = 0xC3;
-		cpBuffer[1] = (short)nDelX >> 8;
-		cpBuffer[2] = (short)nDelX & 0xFF;
-		cpBuffer[3] = (short)nDelY >> 8;
-		cpBuffer[4] = (short)nDelY & 0xFF;
+		cpBuffer[1] = (char)nDelX;
+		cpBuffer[2] = cpBuffer[0] + cpBuffer[1];
 
-		bool bStatus = false;
-		DWORD dNoOfBytesWritten = 0;
-		bStatus = WriteFile(hndComm,        // Handle to the Serial port
-			cpBuffer,     // Data to be written to the port
-			5,  //No of bytes to write
-			&dNoOfBytesWritten, //Bytes written>
-			NULL);
+		if (nDelX != 0) {
+			bool bStatus = false;
+			DWORD dNoOfBytesWritten = 0;
+			bStatus = WriteFile(hndComm,        // Handle to the Serial port
+				cpBuffer,     // Data to be written to the port
+				3,  //No of bytes to write
+				&dNoOfBytesWritten, //Bytes written>
+				NULL);
+		}
+		cpBuffer[0] = 0xC6;
+		cpBuffer[1] = (char)nDelY;
+		cpBuffer[2] = cpBuffer[0] + cpBuffer[1];
+		if (nDelY != 0) {
+			DWORD dNoOfBytesWritten = 0;
+			bool bStatus = WriteFile(hndComm,        // Handle to the Serial port
+				cpBuffer,     // Data to be written to the port
+				3,  //No of bytes to write
+				&dNoOfBytesWritten, //Bytes written>
+				NULL);
+		}
 	}
 	else {
 		char cpBuffer[2];
@@ -90,11 +103,13 @@ void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel
 			&dNoOfBytesWritten, //Bytes written>
 			NULL);
 	}
+	mtxWriteLock.unlock();
 }
 void CArduinoHandler::SendExactMouseInput(int nX, int nY) {
 
 }
 void CArduinoHandler::SendKeyboardInput(unsigned char ucKey, bool bIsPressed) {
+	mtxWriteLock.lock();
 	unsigned char ucTemp = ucKey;
 	if (!KeyboardTypeHelper::WinToArduino(ucKey))
 		return;		//input key is not applicable for arduino
@@ -113,6 +128,7 @@ void CArduinoHandler::SendKeyboardInput(unsigned char ucKey, bool bIsPressed) {
 		2,  //No of bytes to write
 		&dNoOfBytesWritten, //Bytes written>
 		NULL);
+	mtxWriteLock.unlock();
 }
 
 CArduinoHandler::~CArduinoHandler() {

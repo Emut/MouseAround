@@ -1,9 +1,12 @@
+#define _DEBUG
+#define _PURE_DEBUG
 
 #define BUTTON_PRESS 0xC1
 #define BUTTON_RELEASE 0xC2
-#define MOUSE_MOVE_DHDV 0xC3
+#define MOUSE_MOVE_HOR 0xC3
 #define BUTTON_RLS_ALL 0xC4
 #define MOUSE_SCROLL 0xC5
+#define MOUSE_MOVE_VER 0xC6
 
 #define LM_BUTTON 0x1
 #define RM_BUTTON 0x2
@@ -14,13 +17,6 @@
 #include "SoftwareSerial.h"
 
 SoftwareSerial mySerial(8, 9); // RX, TX
-
-// set pin numbers for the five buttons:
-const int upButton = 2;
-const int downButton = 3;
-const int leftButton = 4;
-const int rightButton = 5;
-const int mouseButton = 6;
 
 void setup() { // initialize the buttons' inputs:
 
@@ -43,40 +39,87 @@ void setup() { // initialize the buttons' inputs:
 
 void loop() {
   // use serial input to control the mouse:
-  short sX = 0;
-  short sY = 0;
+  char sX = 0;
+  char sY = 0;
+  char checkSum = 0;
   unsigned char ucKey = 0;
   char cScroll = 0;
+  if(mySerial.overflow())
+    Serial.println("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    
   if (mySerial.available() > 0) {
     int nRead = mySerial.read();
+    #ifdef _DEBUG
+      Serial.println(nRead);
+    #endif
     switch(nRead){
-      case MOUSE_MOVE_DHDV:
+      case MOUSE_MOVE_HOR:
         sX = 0;
-        sY = 0;
+        checkSum = 0;
         while(true){
-            if(mySerial.available()>1){
+            if(mySerial.available()>0){
               nRead = mySerial.read();
-              sX = nRead<<8;
-              nRead = mySerial.read();
-              sX |= nRead & 0xFF;
+              sX = nRead;
+              #ifdef _DEBUG
+                Serial.println(nRead);
+              #endif
               break; 
             }
         }
-          while(true){
-            if(mySerial.available()>1){
+        while(true){
+            if(mySerial.available()>0){
               nRead = mySerial.read();
-              sY = nRead<<8;
-              nRead = mySerial.read();
-              sY |= nRead & 0xFF;
+              checkSum = nRead;
+              #ifdef _DEBUG
+                Serial.println(nRead);
+              #endif
               break; 
             }
-          }
-          //Serial.print("MouseMove");
-          //Serial.print(sX);  
-          //Serial.print(",");  
-          //Serial.println(sY);
-          Mouse.move(sX,sY);
+        }
+        if((char)0xC3 + sX != checkSum)
+          Serial.println("Invalid CheckSum");
+        #ifdef _DEBUG
+            Serial.print("MouseMoveH ");
+            Serial.println((int)sX);  
+        #endif
+        #ifndef _PURE_DEBUG
+          Mouse.move(sX,0);
+        #endif
       break;
+
+      case MOUSE_MOVE_VER:
+        sY = 0;
+        while(true){
+            if(mySerial.available()>0){
+              nRead = mySerial.read();
+              sY = nRead;
+              #ifdef _DEBUG
+                Serial.println(nRead);
+              #endif
+              break; 
+            }
+        }
+        while(true){
+            if(mySerial.available()>0){
+              nRead = mySerial.read();
+              checkSum = nRead;
+              #ifdef _DEBUG
+                Serial.println(nRead);
+              #endif
+              break; 
+            }
+        }
+        if((char)MOUSE_MOVE_VER + sY != checkSum)
+          Serial.println("Invalid CheckSum");
+        #ifdef _DEBUG
+            Serial.print("MouseMoveV ");
+            Serial.println((int)sY);  
+        #endif
+        #ifndef _PURE_DEBUG
+          Mouse.move(0,sY);
+        #endif
+      break;
+      
       case BUTTON_PRESS:
           ucKey = 0;
           while(true){
@@ -85,20 +128,30 @@ void loop() {
               break; 
             }
           }
-          //Serial.print("KeyPress");
-          //Serial.println(ucKey);
+          #ifdef _DEBUG
+            Serial.print("KeyPress");
+            Serial.println(ucKey);
+          #endif
           switch(ucKey){
             case LM_BUTTON:
+            #ifndef _PURE_DEBUG
               Mouse.press(MOUSE_LEFT);
+            #endif
             break;
             case RM_BUTTON:
+            #ifndef _PURE_DEBUG
               Mouse.press(MOUSE_RIGHT);
+            #endif
             break;
             case MM_BUTTON:
+            #ifndef _PURE_DEBUG
               Mouse.press(MOUSE_MIDDLE);
+            #endif
             break;
             default:
+            #ifndef _PURE_DEBUG
               Keyboard.press(ucKey);
+            #endif
             break;
           }
           
@@ -111,8 +164,11 @@ void loop() {
               break; 
             }
           }
-          //Serial.print("KeyRelease");
-          //Serial.println(ucKey);  
+          #ifdef _DEBUG
+            Serial.print("KeyRelease");
+            Serial.println(ucKey);  
+          #endif
+          #ifndef _PURE_DEBUG
           switch(ucKey){
             case LM_BUTTON:
               Mouse.release(MOUSE_LEFT);
@@ -127,6 +183,7 @@ void loop() {
               Keyboard.release(ucKey);
             break;
           }
+          #endif
       break;
 
       case MOUSE_SCROLL:
@@ -138,8 +195,10 @@ void loop() {
             }
           }
           //Serial.print("Scroll");
-          //Serial.println(cScroll);  
-          Mouse.move(0, 0, cScroll);
+          //Serial.println(cScroll);
+          #ifndef _PURE_DEBUG  
+            Mouse.move(0, 0, cScroll);
+          #endif
       break;
 
       case BUTTON_RLS_ALL:
