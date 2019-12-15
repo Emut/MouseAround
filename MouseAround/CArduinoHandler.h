@@ -8,6 +8,7 @@ class CArduinoHandler :
 {
 	std::mutex mtxWriteLock;
 	HANDLE hndComm;
+	unsigned char ucMessageID;
 public:
 	void SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel);
 	void SendExactMouseInput(int nX, int nY);

@@ -2,7 +2,12 @@
 #include "KeyboardTypeHelpers.h"
 
 
+
 CArduinoHandler::CArduinoHandler(int nComID) {
+
+
+	ucMessageID = 0;
+
 	LPWSTR b = new WCHAR[20];
 	b[0] = '\\';
 	b[1] = '\\';
@@ -54,6 +59,7 @@ CArduinoHandler::CArduinoHandler(int nComID) {
 
 void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel) {
 	mtxWriteLock.lock();
+	char cpBuffer[5];
 	if (!bIsWheel) {
 		printf("%d,%d...\n", nDelX, nDelY);
 		if (nDelX > 127)
@@ -64,45 +70,35 @@ void CArduinoHandler::SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel
 			nDelX = -127;
 		if (nDelY < -127)
 			nDelY = -127;
-		char cpBuffer[3];
+		
 		cpBuffer[0] = 0xC3;
-		cpBuffer[1] = (char)nDelX;
-		cpBuffer[2] = cpBuffer[0] + cpBuffer[1];
-
-		if (nDelX != 0) {
-			bool bStatus = false;
-			DWORD dNoOfBytesWritten = 0;
-			bStatus = WriteFile(hndComm,        // Handle to the Serial port
-				cpBuffer,     // Data to be written to the port
-				3,  //No of bytes to write
-				&dNoOfBytesWritten, //Bytes written>
-				NULL);
-		}
-		cpBuffer[0] = 0xC6;
-		cpBuffer[1] = (char)nDelY;
-		cpBuffer[2] = cpBuffer[0] + cpBuffer[1];
-		if (nDelY != 0) {
-			DWORD dNoOfBytesWritten = 0;
-			bool bStatus = WriteFile(hndComm,        // Handle to the Serial port
-				cpBuffer,     // Data to be written to the port
-				3,  //No of bytes to write
-				&dNoOfBytesWritten, //Bytes written>
-				NULL);
-		}
+		cpBuffer[1] = (char)ucMessageID;
+		cpBuffer[2] = (char)nDelX;
+		cpBuffer[3] = (char)nDelY;
+		unsigned char ucCheckSum = 0;
+		ucCheckSum += cpBuffer[0];
+		ucCheckSum += cpBuffer[1];
+		ucCheckSum += cpBuffer[2];
+		ucCheckSum += cpBuffer[3];
+		cpBuffer[4] = ucCheckSum;
 	}
 	else {
-		char cpBuffer[2];
 		cpBuffer[0] = 0xC5;
-		cpBuffer[1] = (char)(nDelX/120);
-
-		bool bStatus = false;
-		DWORD dNoOfBytesWritten = 0;
-		bStatus = WriteFile(hndComm,        // Handle to the Serial port
-			cpBuffer,     // Data to be written to the port
-			2,  //No of bytes to write
-			&dNoOfBytesWritten, //Bytes written>
-			NULL);
+		cpBuffer[1] = (char)ucMessageID;
+		cpBuffer[2] = (char)(nDelX / 120);
+		cpBuffer[3] = 0;
+		unsigned char ucCheckSum = 0;
+		ucCheckSum += cpBuffer[0];
+		ucCheckSum += cpBuffer[1];
+		ucCheckSum += cpBuffer[2];
+		ucCheckSum += cpBuffer[3];
+		cpBuffer[4] = ucCheckSum;
 	}
+	bool bStatus = false;
+	DWORD dNoOfBytesWritten = 0;
+	bStatus = WriteFile(hndComm, cpBuffer, 5, &dNoOfBytesWritten, NULL);
+	bStatus = WriteFile(hndComm, cpBuffer, 5, &dNoOfBytesWritten, NULL);
+	++ucMessageID;
 	mtxWriteLock.unlock();
 }
 void CArduinoHandler::SendExactMouseInput(int nX, int nY) {
@@ -111,23 +107,32 @@ void CArduinoHandler::SendExactMouseInput(int nX, int nY) {
 void CArduinoHandler::SendKeyboardInput(unsigned char ucKey, bool bIsPressed) {
 	mtxWriteLock.lock();
 	unsigned char ucTemp = ucKey;
-	if (!KeyboardTypeHelper::WinToArduino(ucKey))
-		return;		//input key is not applicable for arduino
-	char cpBuffer[2];
+	if (!KeyboardTypeHelper::WinToArduino(ucKey)) {
+		mtxWriteLock.unlock();
+		return;			//input key is not applicable for arduino
+	}
+
+	char cpBuffer[5];
 	if (bIsPressed)
 		cpBuffer[0] = 0xC1;
 	else
 		cpBuffer[0] = 0xC2;
-
-	cpBuffer[1] = ucKey;
+	cpBuffer[1] = (char)ucMessageID;
+	cpBuffer[2] = ucKey;
+	cpBuffer[3] = 0;
+	unsigned char ucCheckSum = 0;
+	ucCheckSum += cpBuffer[0];
+	ucCheckSum += cpBuffer[1];
+	ucCheckSum += cpBuffer[2];
+	ucCheckSum += cpBuffer[3];
+	cpBuffer[4] = ucCheckSum;
 
 	bool bStatus = false;
 	DWORD dNoOfBytesWritten = 0;
-	bStatus = WriteFile(hndComm,        // Handle to the Serial port
-		cpBuffer,     // Data to be written to the port
-		2,  //No of bytes to write
-		&dNoOfBytesWritten, //Bytes written>
-		NULL);
+	bStatus = WriteFile(hndComm, cpBuffer, 5, &dNoOfBytesWritten, NULL);
+	bStatus = WriteFile(hndComm, cpBuffer, 5, &dNoOfBytesWritten, NULL);
+
+	++ucMessageID;
 	mtxWriteLock.unlock();
 }
 

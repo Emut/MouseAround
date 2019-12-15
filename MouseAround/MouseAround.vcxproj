@@ -151,6 +151,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CArduinoCommandParser.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="CArduinoHandler.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CHotkeyManager.cpp" />
