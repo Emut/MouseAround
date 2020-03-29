@@ -1,7 +1,11 @@
+#ifdef _WIN32
 #include "CInputGrabberWin.h"
 #include <stdio.h>
 #include <windows.h>
+
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0400
+#endif
 #pragma comment(lib, "user32.lib")
 
 CInputGrabberWin* callbackInstance = 0;
@@ -24,7 +28,7 @@ __declspec(dllexport) LRESULT CALLBACK MouseEvent(int nCode, WPARAM wParam, LPAR
 
 DWORD WINAPI MouseLogger(LPVOID lpParam) {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
-	if (!hInstance) hInstance = LoadLibrary((LPCWSTR)lpParam);
+	if (!hInstance) hInstance = LoadLibrary((LPCSTR)lpParam);
 	if (!hInstance) return 1;
 
 	callbackInstance->hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseEvent, hInstance, NULL);
@@ -42,7 +46,7 @@ __declspec(dllexport) LRESULT CALLBACK KeyboardEvent(int nCode, WPARAM wParam, L
 
 DWORD WINAPI KeyboardLogger(LPVOID lpParam) {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
-	if (!hInstance) hInstance = LoadLibrary((LPCWSTR)lpParam);
+	if (!hInstance) hInstance = LoadLibrary((LPCSTR)lpParam);
 	if (!hInstance) return 1;
 
 	callbackInstance->hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, (HOOKPROC)KeyboardEvent, hInstance, NULL);
@@ -51,8 +55,9 @@ DWORD WINAPI KeyboardLogger(LPVOID lpParam) {
 	return 0;
 }
 
+
 CInputGrabberWin::CInputGrabberWin(const char* cpExecName, IInputGrabberOut* par_itsOwner) {
-	printf("CInputGrabberWin::Constructor\n");
+	//printf("CInputGrabberWin::Constructor\n");
 	itsOwner = par_itsOwner;
 	callbackInstance = this;
 	GetCursorPos(&prevMousePos);
@@ -149,7 +154,7 @@ LRESULT CInputGrabberWin::MouseCallback(int nCode, WPARAM wParam, LPARAM lParam)
 
 LRESULT CInputGrabberWin::KeyboardCallback(int nCode, WPARAM wParam, LPARAM lParam) {
 	KBDLLHOOKSTRUCT* pKbStruct = (KBDLLHOOKSTRUCT*)lParam;
-	if(itsOwner->KeyboardUpdated(pKbStruct->vkCode, wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN))
+	if(itsOwner->KeyboardUpdated((unsigned char)pKbStruct->vkCode, wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN))
 		return -1;
 	return 0;
 }
@@ -157,7 +162,7 @@ LRESULT CInputGrabberWin::KeyboardCallback(int nCode, WPARAM wParam, LPARAM lPar
 bool CInputGrabberWin::setMousePos(int nPosX, int nPosY) {
 	prevMousePos.x = nPosX;
 	prevMousePos.y = nPosY;
-	return SetCursorPos(nPosX, nPosY);
+	return SetCursorPos(nPosX, nPosY) == TRUE;
 }
 
 bool CInputGrabberWin::getMousePos(int* nPosX, int* nPosY) {
@@ -167,3 +172,45 @@ bool CInputGrabberWin::getMousePos(int* nPosX, int* nPosY) {
 	*nPosY = ptTemp.y;
 	return true;
 }
+
+bool CInputGrabberWin::InsertKeyPress(unsigned char key, bool isPressed){
+	//printf("CInputGrabberWin::InsertKeyPress %d", key);
+	INPUT myInput;
+	if(key == 1 || key == 2 || key == 4){
+		myInput.mi.time = 0;
+		myInput.mi.dx = 0; //rel movement since last event
+		myInput.mi.dy = 0; 
+		
+		myInput.type = INPUT_MOUSE;
+		if(key == 1 && isPressed)
+			myInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+		else if(key == 1 && !isPressed)
+			myInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+		else if(key == 2 && isPressed)
+			myInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+		else if(key == 2 && !isPressed)
+			myInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+		else if(key == 3 && isPressed)
+			myInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+		else if(key == 3 && !isPressed)
+			myInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+	}
+	else{
+	
+		myInput.type = INPUT_KEYBOARD;
+		myInput.ki.wVk = key;
+		if(!isPressed)
+			myInput.ki.dwFlags = KEYEVENTF_KEYUP;
+		else
+			myInput.ki.dwFlags = 0;
+
+	
+	}
+	SendInput(1, &myInput, sizeof(myInput));
+	return true;
+}
+
+bool CInputGrabberWin::InsertMouseWheel(int deltaX, int deltaY){
+	return false; //TODO
+}
+#endif

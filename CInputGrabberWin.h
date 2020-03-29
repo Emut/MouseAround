@@ -1,25 +1,16 @@
 #pragma once
+
+#ifdef _WIN32
 #include <Windows.h>
 
 
-class IInputGrabberOut
-{
-public:
-	virtual bool MouseUpdated(int nPosX, int nPosY, int nDelX, int nDelY, bool bIsWheel) = 0;
-	virtual bool KeyboardUpdated(unsigned char ucKey, bool bIsPressed) = 0;
-};
-
-class IInputGrabberIn
-{
-public:
-	virtual bool setMousePos(int nPosX, int nPosY) = 0;
-	virtual bool getMousePos(int* nPosX, int* nPosY) = 0;
-};
+#include "IInputGrabber.h"
 
 class CInputGrabberWin: public IInputGrabberIn
 {
 	POINT prevMousePos;
 	IInputGrabberOut* itsOwner;
+
 public:
 
 	LRESULT MouseCallback(int nCode, WPARAM wParam, LPARAM lParam);
@@ -30,6 +21,8 @@ public:
 	~CInputGrabberWin();
 	bool setMousePos(int nPosX, int nPosY);
 	bool getMousePos(int* nPosX, int* nPosY);
-
+	bool InsertKeyPress(unsigned char key, bool isPressed);
+	bool InsertMouseWheel(int deltaX, int deltaY);
 };
 
+#endif

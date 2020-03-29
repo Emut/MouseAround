@@ -1,19 +1,24 @@
 #pragma once
 #include "IScreenHandler.h"
 #include <mutex>
-#include <Windows.h>
+#include "CSerial.h"
 
 class CArduinoHandler :
 	public IScreenHandlerIn
 {
 	std::mutex mtxWriteLock;
-	HANDLE hndComm;
 	unsigned char ucMessageID;
+	int nScreenPosX;
+	int nScreenPosY;
+	int nScreenSizeX;
+	int nScreenSizeY;
+	CSerial itsComm;
 public:
 	void SendRelativeMouseInput(int nDelX, int nDelY, bool bIsWheel);
 	void SendExactMouseInput(int nX, int nY);
 	void SendKeyboardInput(unsigned char ucKey, bool bIsPressed);
-	CArduinoHandler(int nComID);
+	void getMousePos(int& nX, int& nY);
+	CArduinoHandler(int nComID, int width, int heigth);
 	~CArduinoHandler();
 };
 

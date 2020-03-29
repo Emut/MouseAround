@@ -1,11 +1,15 @@
 #pragma once
+#include <vector>
+#include "DataTypes.h"
+
 class CConfigHandler
 {
 	
-	CConfigHandler();
-
 public:
-	int nArduinoComPort;
+	std::vector<HandlerProperties> devices;
+	std::vector<HotkeyInfo> hotkeys;
+	char* borderlessEnableCmd;
+	char* borderlessDisableCmd;
 
 	static CConfigHandler* getInstance();
 	bool ImportConfig(const char* par_cpFileName);
